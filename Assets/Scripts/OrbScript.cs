@@ -15,10 +15,15 @@ public class OrbScript : MonoBehaviour
         StartCoroutine(DestructCo());
     }
 
-    void OnCollisionEnter2D(Collision2D other)
+    void OnTriggerEnter2D(Collider2D other)
     {
         if(other.gameObject.tag == "Tile")
         {
+            Destroy(gameObject);
+        } else if (other.gameObject.tag == "Enemy")
+        {
+            Enemy e = other.gameObject.GetComponent<Enemy>();
+            e.enemyHealth -= 1;
             Destroy(gameObject);
         }
     }

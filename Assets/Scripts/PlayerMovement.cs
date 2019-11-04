@@ -1,22 +1,31 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
+using UnityEngine.UI;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
     public float speed, shootDelay, dashDelay, dashForce, dashTime;
+    float timeLeft;
 
-    public GameObject orb;
-    public GameObject shotPoint, trailPoint;
+    public GameObject orb, shotPoint, trailPoint, dashPoint;
+    public GameObject youDied, restartButton;
+
+    public Text healthText;
+
+    public Slider slider;
+
+    public Health health;
 
     private Rigidbody2D rb;
     private bool canShoot, canDash;
+    
     
     void Start()
     {
         rb = gameObject.GetComponent<Rigidbody2D>();
         canShoot = true;
         canDash = true;
+        timeLeft = 0;
         trailPoint.gameObject.SetActive(false);
     }
 
@@ -28,7 +37,24 @@ public class PlayerMovement : MonoBehaviour
         Dash();
     }
 
-    void LookAt()
+    private void Update() {
+
+        healthText.text = "HP : " + health.healthValue;
+
+        timeLeft += Time.deltaTime;
+        slider.value = timeLeft / dashDelay;
+
+        
+
+        if(health.healthValue <= 0)
+        {
+            youDied.SetActive(true);
+            restartButton.SetActive(true);
+            Destroy(gameObject);
+        }  
+    }
+
+    private void LookAt()
     {
         Vector3 dir = Input.mousePosition - Camera.main.WorldToScreenPoint(transform.position);
         float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - 90;
@@ -45,6 +71,8 @@ public class PlayerMovement : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.Space) && canDash)
         {
+            timeLeft = 0;
+            dashPoint.gameObject.SetActive(true);
             StartCoroutine(DashCo());
             rb.AddForce(transform.up * dashForce, ForceMode2D.Impulse);
             StartCoroutine(StopCo(dashTime));
@@ -63,6 +91,14 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    void OnCollisionEnter2D(Collision2D other)
+    {
+        if(other.collider.gameObject.tag == "Enemy")
+        {
+            other.gameObject.GetComponent<Enemy>().isTouched = true;
+        }
+    }
+
     IEnumerator ShootCo()
     {
         canShoot = false;
@@ -73,20 +109,25 @@ public class PlayerMovement : MonoBehaviour
     IEnumerator DashCo()
     {
         canDash = false;
+
         trailPoint.gameObject.SetActive(true);
         
-        yield return new WaitForSeconds(dashDelay);
+        yield return new WaitForSeconds(dashDelay);   
         
-        canDash = true;
+        canDash = true;   
+        
     }
 
     IEnumerator StopCo(float dashTime)
     {
         yield return new WaitForSeconds(this.dashTime);
         rb.velocity = Vector2.zero;
+        dashPoint.gameObject.SetActive(false);
         yield return new WaitForSeconds(2.0f);
         trailPoint.gameObject.SetActive(false);
+        
     }
+
 
 
 }
