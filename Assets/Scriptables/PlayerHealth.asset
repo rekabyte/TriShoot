@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: PlayerHealth
   m_EditorClassIdentifier: 
   defaultHealthValue: 5
-  healthValue: 71.979996
+  healthValue: 2
