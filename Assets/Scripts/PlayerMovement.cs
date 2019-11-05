@@ -51,7 +51,17 @@ public class PlayerMovement : MonoBehaviour
             youDied.SetActive(true);
             restartButton.SetActive(true);
             Destroy(gameObject);
-        }  
+        }
+
+        if (speed > 6)
+        {
+            speed = 6;
+        }
+
+        if (shootDelay < 0.075)
+        {
+            shootDelay = 0.075f;
+        }
     }
 
     private void LookAt()
@@ -128,6 +138,16 @@ public class PlayerMovement : MonoBehaviour
         
     }
 
+    public IEnumerator SpeedCo(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        speed = 3;
+    }
 
+    public IEnumerator RateCo(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        shootDelay = 0.3f;
+    }
 
 }
